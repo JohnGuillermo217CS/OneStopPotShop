@@ -38,19 +38,21 @@ def get_bottle_plan():
         result = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory")).scalar()
 
     quantity = (int)(result / 100)
-
-    for i in range(quantity):
-        with db.engine.begin() as connection:
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = num_green_ml - 100"))
-        with db.engine.begin() as connection:
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions + 1"))
-
-    return [
-            {
-                "potion_type": [0, 100, 0, 0],
-                "quantity": quantity,
-            }
-        ]
+    if quantity > 0:
+        for i in range(quantity):
+            with db.engine.begin() as connection:
+                connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = num_green_ml - 100"))
+            with db.engine.begin() as connection:
+                connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions + 1"))
+    
+        return [
+                {
+                    "potion_type": [0, 100, 0, 0],
+                    "quantity": quantity,
+                }
+            ]
+    else
+        return
 
 if __name__ == "__main__":
     print(get_bottle_plan())
